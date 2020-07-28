@@ -140,6 +140,7 @@
       euroBuy = 0;
       $.ajax({
         url: "/api_access.php/",
+        url: "https://api.hgbrasil.com/finance?format=json&key=00bb4207",
         type: "GET",
         success: function (data, textStatus, jqXHR) {
           dolarBuy = data.results.currencies.USD.buy;
