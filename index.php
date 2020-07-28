@@ -10,6 +10,5 @@
     curl_close($ch);
 
     $resultArray = json_decode($result);
-    header('Content-Type: application/json');
     echo $result;
 ?>
