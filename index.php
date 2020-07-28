@@ -1,16 +1,191 @@
-<?php
-    $url_request = "https://api.hgbrasil.com/finance?format=json&key=00bb4207";
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'rohit');
-    curl_setopt($ch, CURLOPT_URL, $url_request);
-    $result = curl_exec($ch);
-    curl_close($ch);
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+      integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I"
+      crossorigin="anonymous"
+    />
 
-    $resultArray = json_decode($result);
-    header('Content-Type: application/json');
-    header("Access-Control-Allow-Origin: *");
-    echo $result;
-?>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversor de moedas</title>
+    <style>
+      .img-fluid {
+        object-fit: cover !important;
+        height: 200px !important;
+      }
+      footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        color: white;
+        text-align: center;
+      }
+
+      footer a:visited{
+        text-decoration: none;
+        color: white !important;
+      }
+      footer a:any-link{
+        text-decoration: none;
+        font-weight: bold !important;
+        color: white;
+      }
+      .row > .card {
+        padding: 0px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">Conversor de moedas</a>
+      </div>
+    </nav>
+    <br /><br />
+    <div class="container">
+      <div class="row">
+        <div class="card col-md col-sm-12 col-lg-3 offset-lg-1">
+          <div class="card-header">
+            <h3 class="card-title">Real Brasileiro</h3>
+          </div>
+          <img
+            src="https://www.clarusft.com/wp-content/upLoads/2015/08/50_real_notes.jpg"
+            class="img-fluid rounded"
+            alt="..."
+          />
+          <div class="card-body">
+            
+            <div class="input-group input-group-lg">
+              <span class="input-group-text" id="inputGroup-sizing-lg">R$</span>
+              <input
+                type="text"
+                class="form-control form-control-lg"
+                id="real"
+                onkeyup="realToAll()"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="card col-md col-sm-12 col-lg-3 offset-lg-1">
+          <div class="card-header">
+            <h3 class="card-title">Dolár Americano</h3>
+          </div>
+          <img
+            src="https://cdn.pixabay.com/photo/2017/10/21/08/11/usd-2874026_960_720.jpg"
+            class="img-fluid rounded"
+            alt="..."
+          />
+          <div class="card-body">
+            <div class="input-group input-group-lg">
+              <span class="input-group-text" id="inputGroup-sizing-sm">$</span>
+              <input
+                type="text"
+                class="form-control"
+                id="dolar"
+                onkeyup="dolarToAll()"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div class="card col-md col-sm-12 col-lg-3 offset-lg-1">
+          <div class="card-header">
+            <h3 class="card-title">Euro</h3>
+          </div>
+          <img
+            src="https://responsive.fxempire.com/cover/1845x1230/webp-lossy-70.q50/_fxempire_/2020/01/Euros-Notes-3.jpg"
+            class="img-fluid rounded"
+            alt="..."
+          />
+          <div class="card-body">
+            <div class="input-group input-group-lg">
+              <span class="input-group-text" id="inputGroup-sizing-sm">£</span>
+              <input
+                type="text"
+                class="form-control"
+                id="euro"
+                onkeyup="euroToAll()"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="bg-secondary">
+      <div class="footer-copyright text-center py-3">
+        © 2020 Copyright:
+        <a href="https:/github.com/italodea/">Ítalo de Azevedo</a>
+      </div>
+    </footer>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.min.js"
+      integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://igorescobar.github.io/jQuery-Mask-Plugin/js/jquery.mask.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#dolar").mask("#.##0.00", { reverse: true });
+        $("#real").mask("#.##0.00", { reverse: true });
+        $("#euro").mask("#.##0.00", { reverse: true });
+      });
+    </script>
+    <script>
+      dolarBuy = 0;
+      euroBuy = 0;
+      $.ajax({
+        url: "https://api.hgbrasil.com/finance?format=json&key=00bb4207",
+        crossDomain: true,
+        type: "GET",
+        
+        success: function (data, textStatus, jqXHR) {
+          console.log(data)
+          dolarBuy = data.results.currencies.USD.buy;
+          euroBuy = data.results.currencies.EUR.buy;
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log(jqXHR);
+          console.log(textStatus); // if there is an error
+        },
+      });
+    </script>
+    <script>
+      function realToAll() {
+        real = document.getElementById("real").value;
+        document.getElementById("dolar").value = (real / dolarBuy).toFixed(2);
+        document.getElementById("euro").value = (real / euroBuy).toFixed(2);
+      }
+      function dolarToAll() {
+        dolar = document.getElementById("dolar").value;
+        document.getElementById("real").value = (dolarBuy * dolar).toFixed(2);
+        document.getElementById("euro").value = (
+          (dolarBuy * dolar) /
+          euroBuy
+        ).toFixed(2);
+      }
+      function euroToAll() {
+        euro = document.getElementById("euro").value;
+        document.getElementById("real").value = (euroBuy * euro).toFixed(2);
+        document.getElementById("dolar").value = (
+          (euroBuy * euro) /
+          dolarBuy
+        ).toFixed(2);
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+      integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
