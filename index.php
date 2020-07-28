@@ -10,6 +10,7 @@
     curl_close($ch);
 
     $resultArray = json_decode($result);
+    header('Content-Type: application/json');
     header("Access-Control-Allow-Origin: *");
     echo $result;
 ?>
